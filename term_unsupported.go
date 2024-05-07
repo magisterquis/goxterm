@@ -4,7 +4,7 @@
 
 //go:build !aix && !darwin && !dragonfly && !freebsd && !linux && !netbsd && !openbsd && !zos && !windows && !solaris && !plan9
 
-package term
+package goxterm
 
 import (
 	"fmt"

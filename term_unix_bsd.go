@@ -4,7 +4,7 @@
 
 //go:build darwin || dragonfly || freebsd || netbsd || openbsd
 
-package term
+package goxterm
 
 import "golang.org/x/sys/unix"
 

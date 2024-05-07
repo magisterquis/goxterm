@@ -1,4 +1,4 @@
-module golang.org/x/term
+module github.com/magisterquis/goxterm
 
 go 1.18
 

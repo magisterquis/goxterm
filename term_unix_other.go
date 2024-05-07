@@ -4,7 +4,7 @@
 
 //go:build aix || linux || solaris || zos
 
-package term
+package goxterm
 
 import "golang.org/x/sys/unix"
 

@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package term_test
+package goxterm_test
 
 import (
 	"os"
 	"runtime"
 	"testing"
 
-	"golang.org/x/term"
+	"github.com/magisterquis/goxterm"
 )
 
 func TestIsTerminalTempFile(t *testing.T) {
@@ -20,7 +20,7 @@ func TestIsTerminalTempFile(t *testing.T) {
 	defer os.Remove(file.Name())
 	defer file.Close()
 
-	if term.IsTerminal(int(file.Fd())) {
+	if goxterm.IsTerminal(int(file.Fd())) {
 		t.Fatalf("IsTerminal unexpectedly returned true for temporary file %s", file.Name())
 	}
 }
@@ -35,7 +35,7 @@ func TestIsTerminalTerm(t *testing.T) {
 	}
 	defer file.Close()
 
-	if !term.IsTerminal(int(file.Fd())) {
+	if !goxterm.IsTerminal(int(file.Fd())) {
 		t.Fatalf("IsTerminal unexpectedly returned false for terminal file %s", file.Name())
 	}
 }

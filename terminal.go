@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package term
+package goxterm
 
 import (
 	"bytes"
@@ -770,7 +770,12 @@ func (t *Terminal) readLine() (line string, err error) {
 		t.c.Write(t.outBuf)
 		t.outBuf = t.outBuf[:0]
 		if lineOk {
-			if t.echo {
+			/* Add non-blank lines to the history if they're
+			different than the previous line. */
+			prev, ok := t.history.NthPreviousEntry(0)
+			if t.echo &&
+				"" != line &&
+				!(ok && line == prev) {
 				t.historyIndex = -1
 				t.history.Add(line)
 			}

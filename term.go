@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// Package term provides support functions for dealing with terminals, as
+// Package goxterm provides support functions for dealing with terminals, as
 // commonly found on UNIX systems.
 //
 // Putting a terminal into raw mode is the most common requirement:
@@ -14,7 +14,7 @@
 //	defer term.Restore(int(os.Stdin.Fd()), oldState)
 //
 // Note that on non-Unix systems os.Stdin.Fd() may not be 0.
-package term
+package goxterm
 
 // State contains the state of a terminal.
 type State struct {
