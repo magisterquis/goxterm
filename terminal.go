@@ -181,6 +181,16 @@ func bytesToKey(b []byte, pasteActive bool) (rune, []byte) {
 		return r, b[l:]
 	}
 
+	/* Terminal.app on macOS */
+	if !pasteActive && len(b) >= 2 && b[0] == keyEscape {
+		switch b[1] {
+		case 'b':
+			return keyAltLeft, b[2:]
+		case 'f':
+			return keyAltRight, b[2:]
+		}
+	}
+
 	if !pasteActive && len(b) >= 3 && b[0] == keyEscape && b[1] == '[' {
 		switch b[2] {
 		case 'A':
@@ -195,6 +205,17 @@ func bytesToKey(b []byte, pasteActive bool) (rune, []byte) {
 			return keyHome, b[3:]
 		case 'F':
 			return keyEnd, b[3:]
+		}
+	}
+
+	/* iTerm2 on macOS */
+	if !pasteActive && len(b) >= 4 &&
+		b[0] == keyEscape && b[1] == keyEscape && b[2] == '[' {
+		switch b[3] {
+		case 'C':
+			return keyAltRight, b[4:]
+		case 'D':
+			return keyAltLeft, b[4:]
 		}
 	}
 
