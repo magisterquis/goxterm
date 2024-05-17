@@ -13,6 +13,31 @@ import (
 	"unicode/utf8"
 )
 
+// This is left here to aid future feature creep.  It redirects stderr to
+// the file named with the GOXTERM_MQD_DEBUG environment variable.
+//
+// To Use:
+//  1. go get github.com/magisterquis/mqd
+//  2. Uncomment it
+//  3. tail -f /tmp/t
+//  4. Add mqd.Log and friends, as appropriate
+/*
+func init() {
+	if fn := os.Getenv("GOXTERM_MQD_DEBUG"); "" != fn {
+		f, err := os.Create(fn)
+		if nil != err {
+			panic(fmt.Sprintf("Create: %s", err))
+		}
+		if err := syscall.Dup2(
+			int(f.Fd()),
+			int(os.Stderr.Fd()),
+		); nil != err {
+			panic(fmt.Sprintf("Dup2: %s", err))
+		}
+	}
+}
+*/
+
 // EscapeCodes contains escape sequences that can be written to the terminal in
 // order to achieve different styles of text.
 type EscapeCodes struct {
@@ -39,12 +64,16 @@ var vt100EscapeCodes = EscapeCodes{
 // Terminal contains the state for running a VT100 terminal that is capable of
 // reading lines of input.
 type Terminal struct {
-	// AutoCompleteCallback, if non-null, is called for each keypress with
+	// AutoCompleteCallback, if non-nil, is called for each keypress with
 	// the full input line and the current position of the cursor (in
 	// bytes, as an index into |line|). If it returns ok=false, the key
 	// press is processed normally. Otherwise it returns a replacement line
 	// and the new cursor position.
 	AutoCompleteCallback func(line string, pos int, key rune) (newLine string, newPos int, ok bool)
+
+	// ControlCharacterCallback, if non-nil, is called for each control
+	// character (e.g. Ctrl+G) not otherwise handled.
+	ControlCharacterCallback func(key rune)
 
 	// Escape contains a pointer to the escape codes for this terminal.
 	// It's always a valid pointer, although the escape codes themselves
@@ -596,6 +625,12 @@ func (t *Terminal) handleKey(key rune) (line string, ok bool) {
 			}
 		}
 		if !isPrintable(key) {
+			/* Instead of ignoring unprintable characters like the
+			original golang.org/x/term, we give the user the
+			option to handle them with a callback. */
+			if nil != t.ControlCharacterCallback {
+				t.ControlCharacterCallback(key)
+			}
 			return
 		}
 		if len(t.line) == maxLineLength {
