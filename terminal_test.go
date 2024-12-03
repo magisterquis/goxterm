@@ -6,6 +6,7 @@ package goxterm
 
 import (
 	"bytes"
+	"errors"
 	"io"
 	"os"
 	"runtime"
@@ -215,7 +216,16 @@ var keyPressTests = []struct {
 		err:  ErrPasteIndicator,
 	},
 	{
-		// Ctrl-C terminates readline
+		// Ctrl-C returns an error and leaves the rest of the line
+		// ready for the next call to ReadLine.  It may be also tested
+		// with io.EOF.
+		in:  "\003",
+		err: ErrCtrlC,
+	},
+	{
+		// Ctrl-C returns an error and leaves the rest of the line
+		// ready for the next call to ReadLine.  It may be also tested
+		// with ErrCtrlC.
 		in:  "\003",
 		err: io.EOF,
 	},
@@ -223,6 +233,11 @@ var keyPressTests = []struct {
 		// Ctrl-C at the end of line also terminates readline
 		in:  "a\003\r",
 		err: io.EOF,
+	},
+	{
+		// Ctrl-C at the end of line also terminates readline
+		in:  "a\003\r",
+		err: ErrCtrlC,
 	},
 }
 
@@ -245,7 +260,7 @@ func TestKeyPresses(t *testing.T) {
 				t.Errorf("Line resulting from test %d (%d bytes per read) was '%s', expected '%s'", i, j, line, test.line)
 				break
 			}
-			if err != test.err {
+			if !errors.Is(err, test.err) {
 				t.Errorf("Error resulting from test %d (%d bytes per read) was '%v', expected '%v'", i, j, err, test.err)
 				break
 			}

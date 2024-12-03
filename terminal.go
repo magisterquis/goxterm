@@ -1,8 +1,12 @@
-// Copyright 2011 The Go Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package goxterm
+
+/*
+ * terminal.go
+ * Support for dealing with terminals.
+ * By The Go Authors
+ * Created sometime before 20120312
+ * Last Modified 20241203
+ */
 
 import (
 	"bytes"
@@ -13,14 +17,18 @@ import (
 	"unicode/utf8"
 )
 
+// Original version Copyright 2011 The Go Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 // This is left here to aid future feature creep.  It redirects stderr to
 // the file named with the GOXTERM_MQD_DEBUG environment variable.
 //
 // To Use:
 //  1. go get github.com/magisterquis/mqd
-//  2. Uncomment it
-//  3. tail -f /tmp/t
-//  4. Add mqd.Log and friends, as appropriate
+//  2. Uncomment init, belowe
+//  3. Add mqd.Log and friends, as appropriate
+//  4. tail -f $GOXTERM_MQD_DEBUG while running the code
 /*
 func init() {
 	if fn := os.Getenv("GOXTERM_MQD_DEBUG"); "" != fn {
@@ -799,7 +807,12 @@ func (t *Terminal) readLine() (line string, err error) {
 					}
 				}
 				if key == keyCtrlC {
-					return "", io.EOF
+					/* This originally returned io.EOF, but
+					instead we'll clear the keyCtrlC out
+					of the read buffer after the loop and
+					then return the error. */
+					err = CtrlC{}
+					break
 				}
 				if key == keyPasteStart {
 					t.pasteActive = true
@@ -846,6 +859,12 @@ func (t *Terminal) readLine() (line string, err error) {
 		// containing a partial key sequence
 		readBuf := t.inBuf[len(t.remainder):]
 		var n int
+
+		/* If we've already got an error don't bother reading anything
+		else. */
+		if nil != err {
+			return
+		}
 
 		t.lock.Unlock()
 		n, err = t.c.Read(readBuf)
