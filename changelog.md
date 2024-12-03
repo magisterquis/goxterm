@@ -9,3 +9,4 @@ Branch `betterctrlc`
 - Added `StdioRW`, a `ReadWriter` wrapping stdin and stdout.
 - Added `CtrlC` and `ErrCtrlC`, returned from `Terminal.ReadLine` on Ctrl+C
   instead of EOF.
+- Updated dependencies.
