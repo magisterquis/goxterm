@@ -8,6 +8,7 @@ and (maybe) [Terminal.app(https://support.apple.com/guide/terminal/welcome/mac)]
 - Blank lines aren't saved to history
 - Repeated lines aren't saved to history
 - Option+Left/Right works on macOS with iTerm2 and Terminal.app
+- Cooked mode, for disabling TTY-like features
 
 # Go terminal/console support
 

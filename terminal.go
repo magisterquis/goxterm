@@ -5,6 +5,7 @@
 package goxterm
 
 import (
+	"bufio"
 	"bytes"
 	"io"
 	"runtime"
@@ -80,6 +81,10 @@ type Terminal struct {
 	// may be empty if the terminal doesn't support them.
 	Escape *EscapeCodes
 
+	// cooked disables most TTYish featurens and turns Terminal into more
+	// or less a line-oriented io.ReadWriter.
+	cooked bool
+
 	// lock protects the terminal and the state in this object from
 	// concurrent processing of a key press and a Write() call.
 	lock sync.Mutex
@@ -123,6 +128,9 @@ type Terminal struct {
 	// the incomplete, initial line. That value is stored in
 	// historyPending.
 	historyPending string
+
+	/* The below are used only when NoRaw is set. */
+	scanner *bufio.Scanner /* Reads lines from c. */
 }
 
 // NewTerminal runs a VT100 terminal on the given ReadWriter. If the ReadWriter is
@@ -705,6 +713,11 @@ func (t *Terminal) Write(buf []byte) (n int, err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
+	/* Writing not in raw mode is just a pass-through. */
+	if t.cooked {
+		return t.c.Write(buf)
+	}
+
 	if t.cursorX == 0 && t.cursorY == 0 {
 		// This is the easy case: there's nothing on the screen that we
 		// have to move out of the way.
@@ -752,6 +765,11 @@ func (t *Terminal) ReadPassword(prompt string) (line string, err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
+	/* In cooked mode, this is no different than reading any other line. */
+	if t.cooked {
+		return t.cookedReadLine()
+	}
+
 	oldPrompt := t.prompt
 	t.prompt = []rune(prompt)
 	t.echo = false
@@ -768,6 +786,11 @@ func (t *Terminal) ReadPassword(prompt string) (line string, err error) {
 func (t *Terminal) ReadLine() (line string, err error) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
+
+	/* In cooked mode, we just read lines as they come. */
+	if t.cooked {
+		return t.cookedReadLine()
+	}
 
 	return t.readLine()
 }
@@ -892,6 +915,11 @@ func (t *Terminal) SetSize(width, height int) error {
 	t.lock.Lock()
 	defer t.lock.Unlock()
 
+	/* No concept of terminal size in non-raw terminals. */
+	if t.cooked {
+		return nil
+	}
+
 	if width == 0 {
 		width = 1
 	}
@@ -959,6 +987,12 @@ var ErrPasteIndicator = pasteIndicatorError{}
 // pastes. Additionally, any lines that are completely pasted will be returned
 // from ReadLine with the error set to ErrPasteIndicator.
 func (t *Terminal) SetBracketedPasteMode(on bool) {
+	t.lock.Lock()
+	cooked := t.cooked
+	t.lock.Unlock()
+	if cooked {
+		return
+	}
 	if on {
 		io.WriteString(t.c, "\x1b[?2004h")
 	} else {
