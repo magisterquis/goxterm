@@ -1,5 +1,8 @@
 module github.com/magisterquis/goxterm
 
-go 1.23.0
+go 1.25.1
 
-require golang.org/x/sys v0.30.0
+require (
+	golang.org/x/sync v0.9.0
+	golang.org/x/sys v0.36.0
+)
