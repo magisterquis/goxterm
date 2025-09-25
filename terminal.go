@@ -5,7 +5,7 @@ package goxterm
  * Support for dealing with terminals.
  * By The Go Authors
  * Created sometime before 20120312
- * Last Modified 20241203
+ * Last Modified 20250924
  */
 
 import (
