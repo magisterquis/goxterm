@@ -2,7 +2,7 @@ Fork of `golang.org/x/term`
 ===========================
 Forked and modified to work a bit better,
 at least with [iTerm2](https://iterm2.com)
-and (maybe) [Terminal.app(https://support.apple.com/guide/terminal/welcome/mac)].
+and (maybe) [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac)].
 
 # Changes
 - Blank lines aren't saved to history
