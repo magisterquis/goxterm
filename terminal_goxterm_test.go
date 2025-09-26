@@ -149,7 +149,7 @@ func TestTerminal_DuplicateHistory(t *testing.T) {
 		t.Fatalf("Error trying to up arrow and enter: %s", err)
 	} else if want := lineOne; got != want {
 		t.Errorf(
-			"Incorrect line after two up arros and an enter\n"+
+			"Incorrect line after two up arrows and an enter\n"+
 				" got: %q\n"+
 				"want: %q",
 			got,
