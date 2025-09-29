@@ -5,7 +5,7 @@ package goxterm
  * Non-raw-specific Terminal things.
  * By J. Stuart McMurray
  * Created 20250215
- * Last Modified 20250215
+ * Last Modified 20250929
  */
 
 import (
@@ -14,19 +14,22 @@ import (
 	"io"
 )
 
-// cookedEscapeCodes are used when in cooked mode to prevent colors from
-// gunking up simple stream output.
-var cookedEscapeCodes = EscapeCodes{
-	Black:   []byte{},
-	Red:     []byte{},
-	Green:   []byte{},
-	Yellow:  []byte{},
-	Blue:    []byte{},
-	Magenta: []byte{},
-	Cyan:    []byte{},
-	White:   []byte{},
-
-	Reset: []byte{},
+// CookedEscapeCodes returns a pointer to a new EscapeCodes consisting of empty
+// slices.
+// This is the EscapeCodes used in cooked mode to prevent colors from gunking
+// up simple stream output.
+func CookedEscapeCodes() *EscapeCodes {
+	return &EscapeCodes{
+		Black:   []byte{},
+		Red:     []byte{},
+		Green:   []byte{},
+		Yellow:  []byte{},
+		Blue:    []byte{},
+		Magenta: []byte{},
+		Cyan:    []byte{},
+		White:   []byte{},
+		Reset:   []byte{},
+	}
 }
 
 // Cooked changes t to behave better when the underlying io.ReadWriter isn't a
@@ -46,7 +49,7 @@ var cookedEscapeCodes = EscapeCodes{
 func (t *Terminal) Cooked() {
 	t.lock.Lock()
 	defer t.lock.Unlock()
-	t.Escape = &cookedEscapeCodes
+	t.Escape = CookedEscapeCodes()
 	t.cooked = true
 }
 

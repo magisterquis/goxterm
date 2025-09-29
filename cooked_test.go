@@ -5,7 +5,7 @@ package goxterm
  * Non-raw-specific Terminal things.
  * By J. Stuart McMurray
  * Created 20250215
- * Last Modified 20250215
+ * Last Modified 20250929
  */
 
 import (
@@ -14,6 +14,7 @@ import (
 	"errors"
 	"io"
 	"net"
+	"reflect"
 	"slices"
 	"strconv"
 	"strings"
@@ -155,4 +156,19 @@ func TestTerminalWrite_Cooked(t *testing.T) {
 func TestTerminalSetPrompt_Cooked(t *testing.T) {
 	ss, _ := newCookedTerminal()
 	ss.SetPrompt("> ") /* Shoud be kinda boring. */
+}
+
+func TestCookedEscapeCodes_AllEmpty(t *testing.T) {
+	ec := reflect.ValueOf(CookedEscapeCodes()).Elem()
+	for i := range ec.NumField() {
+		f := ec.Field(i)
+		if 0 != f.Len() {
+			t.Errorf(
+				"CookedEscapeCodes field %d/%d (%s) not empty",
+				i+1,
+				ec.NumField(),
+				ec.Type().Field(i).Name,
+			)
+		}
+	}
 }
