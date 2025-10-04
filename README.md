@@ -9,6 +9,7 @@ and (maybe) [Terminal.app](https://support.apple.com/guide/terminal/welcome/mac)
 - Repeated lines aren't saved to history
 - Option+Left/Right works on macOS with iTerm2 and Terminal.app
 - Cooked mode, for disabling TTY-like features
+- `Terminal.ReadLine` indicates when a Ctrl+C was received.
 
 # Go terminal/console support
 
